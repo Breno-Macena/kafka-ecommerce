@@ -7,30 +7,29 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import java.io.Closeable;
 import java.sql.Timestamp;
 import java.time.Duration;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Properties;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Pattern;
 
 class KafkaService<T> implements Closeable {
     private final KafkaConsumer<String, T> consumer;
     private final ConsumerFunction parse;
     private Class<T> type;
+    private Map<String, String> properties;
 
-    private KafkaService(String groupId, ConsumerFunction parse, Class<T> type) {
+    private KafkaService(String groupId, ConsumerFunction parse, Class<T> type, Map<String, String> properties) {
         this.parse = parse;
         this.type = type;
-        this.consumer = new KafkaConsumer<>(properties(groupId, type));
+        this.properties = properties;
+        this.consumer = new KafkaConsumer<>(getProperties(groupId, type, properties));
     }
 
-    KafkaService(String groupId, String topic, ConsumerFunction parse, Class<T> type) {
-        this(groupId, parse, type);
+    KafkaService(String groupId, String topic, ConsumerFunction parse, Class<T> type, Map<String, String> properties) {
+        this(groupId, parse, type, properties);
         consumer.subscribe(Collections.singletonList(topic));
     }
 
-    KafkaService(String groupId, Pattern topic, ConsumerFunction parse, Class<T> type) {
-        this(groupId, parse, type);
+    KafkaService(String groupId, Pattern topic, ConsumerFunction parse, Class<T> type, Map<String, String> properties) {
+        this(groupId, parse, type, properties);
         consumer.subscribe(topic);
     }
 
@@ -47,7 +46,7 @@ class KafkaService<T> implements Closeable {
         }
     }
 
-    private Properties properties(String groupId, Class<T> type) {
+    private Properties getProperties(String groupId, Class<T> type, Map<String, String> overrideProperties) {
         var properties = new Properties();
 
         properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
@@ -62,8 +61,9 @@ class KafkaService<T> implements Closeable {
         // definir o máximo de registros no poll como um, de forma que uma mensagem será processada por vez, e para
         // cada mensagem teremos um commit. Essa é uma configuração muito comum, e usada basteante inclusive em grandes empresas
         properties.setProperty(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "1");
-
         properties.setProperty(GsonDeserializer.TYPE_CONFIG, type.getName());
+        properties.putAll(overrideProperties);
+
         return properties;
     }
 
