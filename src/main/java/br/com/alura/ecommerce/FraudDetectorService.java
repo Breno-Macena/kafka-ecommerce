@@ -9,6 +9,7 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Properties;
+import java.util.UUID;
 
 public class FraudDetectorService {
     public static void main(String[] args) {
@@ -45,7 +46,13 @@ public class FraudDetectorService {
         properties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         // é necessário dizer qual o ID do grupo que está consumindo a mensagem, ou seja,
         properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, FraudDetectorService.class.getSimpleName());
-
+        // pode-se definir um identificador de cliente para esse consumidor, que será setado no kafka quando houver a atribuição da partição
+        properties.setProperty(ConsumerConfig.CLIENT_ID_CONFIG, FraudDetectorService.class.getSimpleName() + "_" + UUID.randomUUID().toString());
+        // Se houver um rebalanceamento das partições no meio de um processamento de mensagens, isso vai gerar um erro de commit
+        // após o consumo. E a informação de consumo daquelas mensagens se perderá. Para "suavizar" esse problema, podemos
+        // definir o máximo de registros no poll como um, de forma que uma mensagem será processada por vez, e para
+        // cada mensagem teremos um commit. Essa é uma configuração muito comum, e usada basteante inclusive em grandes empresas
+        properties.setProperty(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "1");
         return properties;
     }
 }
