@@ -10,10 +10,10 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Properties;
 
-public class FraudDetectorService {
+public class EmailService {
     public static void main(String[] args) {
         var consumer = new KafkaConsumer<String, String>(properties());
-        consumer.subscribe(Collections.singletonList("ECOMMERCE_NEW_ORDER"));
+        consumer.subscribe(Collections.singletonList("ECOMMERCE_SEND_EMAIL"));
         while(true) {
             var records = consumer.poll(Duration.ofMillis(100));
             if(! records.isEmpty()) {
@@ -21,17 +21,17 @@ public class FraudDetectorService {
                 System.out.println(new Timestamp((new Date()).getTime()) + " " + records.count() + " registers found.");
                 for(var record : records) {
                     System.out.println("------------------------------------------------");
-                    System.out.println("Processing new order, checking for fraud");
+                    System.out.println("Sending e-mail");
                     System.out.println(record.key());
                     System.out.println(record.value());
                     System.out.println(record.partition());
                     System.out.println(record.offset());
                     try {
-                        Thread.sleep(5000);
+                        Thread.sleep(1000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    System.out.println("Order precessed");
+                    System.out.println("E-mail sent");
                 }
             }
         }
@@ -44,7 +44,7 @@ public class FraudDetectorService {
         properties.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         properties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         // é necessário dizer qual o ID do grupo que está consumindo a mensagem, ou seja,
-        properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, FraudDetectorService.class.getSimpleName());
+        properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, EmailService.class.getSimpleName());
 
         return properties;
     }
