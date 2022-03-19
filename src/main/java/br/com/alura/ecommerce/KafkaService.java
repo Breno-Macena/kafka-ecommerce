@@ -4,6 +4,7 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 
+import java.io.Closeable;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.util.Collections;
@@ -11,7 +12,7 @@ import java.util.Date;
 import java.util.Properties;
 import java.util.UUID;
 
-class KafkaService {
+class KafkaService implements Closeable {
     private final KafkaConsumer<String, String> consumer;
     private final ConsumerFunction parse;
 
@@ -50,5 +51,10 @@ class KafkaService {
         // cada mensagem teremos um commit. Essa é uma configuração muito comum, e usada basteante inclusive em grandes empresas
         properties.setProperty(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "1");
         return properties;
+    }
+
+    @Override
+    public void close() {
+        consumer.close();
     }
 }
