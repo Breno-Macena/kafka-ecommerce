@@ -8,6 +8,7 @@ import java.io.Closeable;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 
 class KafkaService<T> implements Closeable {
@@ -40,7 +41,13 @@ class KafkaService<T> implements Closeable {
                 System.out.println("------------------------------------------------");
                 System.out.println(new Timestamp((new Date()).getTime()) + " " + records.count() + " registers found.");
                 for(var record : records) {
-                    this.parse.consume(record);
+                    try {
+                        this.parse.consume(record);
+                    } catch (ExecutionException e) {
+                        // so far, just logging the exception for this message
+                    } catch (InterruptedException e) {
+                        // so far, just logging the exception for this message
+                    }
                 }
             }
         }
