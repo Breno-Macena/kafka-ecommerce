@@ -5,7 +5,6 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import java.sql.*;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 
 public class CreateUserService {
 
@@ -52,7 +51,7 @@ public class CreateUserService {
         insert.setString(1, UUID.randomUUID().toString());
         insert.setString(2, email);
         insert.execute();
-        System.out.println("User uuid and" + email + " added!");
+        System.out.println("User uuid " + email + " added!");
     }
 
     private boolean isNewUser(String email) throws SQLException {

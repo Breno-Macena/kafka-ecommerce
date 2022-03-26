@@ -8,32 +8,28 @@ import java.io.Closeable;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 
 class KafkaService<T> implements Closeable {
     private final KafkaConsumer<String, T> consumer;
-    private final ConsumerFunction parse;
-    private Class<T> type;
-    private Map<String, String> properties;
+    private final ConsumerFunction<T> parse;
 
-    private KafkaService(String groupId, ConsumerFunction parse, Class<T> type, Map<String, String> properties) {
+    private KafkaService(String groupId, ConsumerFunction<T> parse, Class<T> type, Map<String, String> properties) {
         this.parse = parse;
-        this.type = type;
-        this.properties = properties;
         this.consumer = new KafkaConsumer<>(getProperties(groupId, type, properties));
     }
 
-    KafkaService(String groupId, String topic, ConsumerFunction parse, Class<T> type, Map<String, String> properties) {
+    KafkaService(String groupId, String topic, ConsumerFunction<T> parse, Class<T> type, Map<String, String> properties) {
         this(groupId, parse, type, properties);
         consumer.subscribe(Collections.singletonList(topic));
     }
 
-    KafkaService(String groupId, Pattern topic, ConsumerFunction parse, Class<T> type, Map<String, String> properties) {
+    KafkaService(String groupId, Pattern topic, ConsumerFunction<T> parse, Class<T> type, Map<String, String> properties) {
         this(groupId, parse, type, properties);
         consumer.subscribe(topic);
     }
 
+    @SuppressWarnings("InfiniteLoopStatement")
     void run() {
         while(true) {
             var records = consumer.poll(Duration.ofMillis(100));
