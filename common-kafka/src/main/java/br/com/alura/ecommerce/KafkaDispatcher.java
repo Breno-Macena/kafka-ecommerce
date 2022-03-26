@@ -24,6 +24,14 @@ public class KafkaDispatcher<T> implements Closeable {
         // tanto a chave quanto o valor vão transformar a mensagem e a chave baseada em string (string para byte)
         properties.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         properties.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, GsonSerializer.class.getName());
+        // Existem situações em que uma máquina líder recebe uma mensagem e não consegue enviar para as máquinas réplicas.
+        // Por exemplo, se a máquina líder cair assim que receber a mensagem, ou a máquina líder estiver sozinha no ar e
+        // cair antes das réplicas subirem.
+        // Isso pode causar a perda de mensagens.
+        // Para maior confiança (reliability), podemos configurar o produtor para obrigar que o kafka só retorne OK
+        // se o líder conseguir mandar a mensagem para as réplicas.
+        // Isso pode causar lentidão, mas ao menos é mais seguro.
+        properties.setProperty(ProducerConfig.ACKS_CONFIG, "all");
         return properties;
     }
 
