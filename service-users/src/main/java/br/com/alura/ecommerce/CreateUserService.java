@@ -24,10 +24,10 @@ public class CreateUserService {
     }
 
     public static void main(String[] args) throws SQLException {
-        var fraudDetectorService = new CreateUserService();
+        var createUserService = new CreateUserService();
         try(var service = new KafkaService<>(CreateUserService.class.getSimpleName(),
                 "ECOMMERCE_NEW_ORDER",
-                fraudDetectorService::parse,
+                createUserService::parse,
                 Order.class,
                 Map.of())){
             service.run();
