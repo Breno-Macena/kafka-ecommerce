@@ -32,7 +32,6 @@ public class BatchSendMessageService {
         try(var service = new KafkaService<>(BatchSendMessageService.class.getSimpleName(),
                 "ECOMMERCE_SEND_MESSAGE_TO_ALL_USERS",
                 batchSendMessageService::parse,
-                String.class,
                 Map.of())){
             service.run();
         }
