@@ -8,6 +8,7 @@ import java.io.Closeable;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 
 class KafkaService<T> implements Closeable {
@@ -30,19 +31,23 @@ class KafkaService<T> implements Closeable {
     }
 
     @SuppressWarnings("InfiniteLoopStatement")
-    void run() {
-        while(true) {
-            var records = consumer.poll(Duration.ofMillis(100));
-            if(! records.isEmpty()) {
-                System.out.println("------------------------------------------------");
-                System.out.println(new Timestamp((new Date()).getTime()) + " " + records.count() + " registers found.");
-                for(var record : records) {
-                    try {
-                        this.parse.consume(record);
-                    } catch (Exception e) {
-                        // only catches exception becuase not matter which Exception I want to recover and parse
-                        // the next one
-                        // so far, just logging the exception for this message
+    void run() throws ExecutionException, InterruptedException {
+        try(var deadLetter = new KafkaDispatcher<>()) {
+            while(true) {
+                var records = consumer.poll(Duration.ofMillis(100));
+                if(! records.isEmpty()) {
+                    System.out.println("------------------------------------------------");
+                    System.out.println(new Timestamp((new Date()).getTime()) + " " + records.count() + " registers found.");
+                    for(var record : records) {
+                        try {
+                            this.parse.consume(record);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            var message = record.value();
+                            deadLetter.send("ECOMMERCE_DEADLETTER", message.getId().toString(),
+                                    message.getId().continueWith("DeadLetter"),
+                                    new GsonSerializer<>().serialize("", message));
+                        }
                     }
                 }
             }
