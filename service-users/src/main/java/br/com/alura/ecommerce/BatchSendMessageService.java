@@ -39,7 +39,7 @@ public class BatchSendMessageService {
 
     private final KafkaDispatcher<User> userDispatcher = new KafkaDispatcher<>();
 
-    private void parse(ConsumerRecord<String, Message<String>> record) throws SQLException, ExecutionException, InterruptedException {
+    private void parse(ConsumerRecord<String, Message<String>> record) throws SQLException {
         var message = record.value();
         var payload = message.getPayload();
 
@@ -48,9 +48,10 @@ public class BatchSendMessageService {
         System.out.println("Topic: " + payload);
 
         for (User user: getAllUsers()) {
-            userDispatcher.send(payload, user.getUuid(),
+            userDispatcher.sendAsync(payload, user.getUuid(),
                     message.getId().continueWith(BatchSendMessageService.class.getSimpleName()),
                     user);
+            System.out.println("Acho que enviei para " + user);
         }
     }
 
