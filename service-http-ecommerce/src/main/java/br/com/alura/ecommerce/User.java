@@ -1,4 +1,4 @@
-package br.com.alura.ecommmerce;
+package br.com.alura.ecommerce;
 
 public class User {
     private final String uuid;

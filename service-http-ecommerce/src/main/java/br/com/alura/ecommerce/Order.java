@@ -1,7 +1,8 @@
-package br.com.alura.ecommmerce;
+package br.com.alura.ecommerce;
 
 import java.math.BigDecimal;
 
+@SuppressWarnings("FieldCanBeLocal")
 public class Order {
     private final String orderId, email;
     private final BigDecimal amount;

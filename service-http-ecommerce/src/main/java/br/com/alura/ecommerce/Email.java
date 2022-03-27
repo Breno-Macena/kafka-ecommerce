@@ -1,5 +1,6 @@
-package br.com.alura.ecommmerce;
+package br.com.alura.ecommerce;
 
+@SuppressWarnings("FieldCanBeLocal")
 public class Email {
     private final String subject, body;
 

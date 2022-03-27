@@ -1,6 +1,5 @@
-package br.com.alura.ecommmerce;
+package br.com.alura.ecommerce;
 
-import br.com.alura.ecommerce.KafkaDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;

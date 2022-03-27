@@ -1,4 +1,4 @@
-package br.com.alura.ecommmerce;
+package br.com.alura.ecommerce;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;

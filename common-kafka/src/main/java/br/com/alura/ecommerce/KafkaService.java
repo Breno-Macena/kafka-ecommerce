@@ -11,7 +11,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 class KafkaService<T> implements Closeable {
-    private final KafkaConsumer<String, T> consumer;
+    private final KafkaConsumer<String, Message<T>> consumer;
     private final ConsumerFunction<T> parse;
 
     private KafkaService(String groupId, ConsumerFunction<T> parse, Class<T> type, Map<String, String> properties) {
@@ -64,7 +64,6 @@ class KafkaService<T> implements Closeable {
         // definir o máximo de registros no poll como um, de forma que uma mensagem será processada por vez, e para
         // cada mensagem teremos um commit. Essa é uma configuração muito comum, e usada basteante inclusive em grandes empresas
         properties.setProperty(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "1");
-        properties.setProperty(GsonDeserializer.TYPE_CONFIG, type.getName());
         properties.putAll(overrideProperties);
 
         return properties;
