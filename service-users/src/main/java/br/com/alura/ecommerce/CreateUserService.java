@@ -8,7 +8,6 @@ import java.sql.*;
 import java.util.UUID;
 
 public class CreateUserService implements ConsumerService<Order> {
-
     private final LocalDatabase database;
 
     CreateUserService() throws SQLException {
@@ -55,8 +54,6 @@ public class CreateUserService implements ConsumerService<Order> {
 
     private boolean isNewUser(String email) throws SQLException {
         var results = database.query("select uuid from Users where email = ? limit 1", email);
-
-
         return !results.next();
     }
 }
