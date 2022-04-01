@@ -1,18 +1,17 @@
 package br.com.alura.ecommerce;
 
-import br.com.alura.ecommerce.consumer.KafkaService;
+import br.com.alura.ecommerce.consumer.ConsumerService;
+import br.com.alura.ecommerce.consumer.ServiceRunner;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 import java.sql.*;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 
-public class CreateUserService {
+public class CreateUserService implements ConsumerService<Order> {
 
     private final Connection connection;
 
-    CreateUserService() throws SQLException {
+    private CreateUserService() throws SQLException {
         String url = "jdbc:sqlite:target/users_database.db";
         this.connection = DriverManager.getConnection(url);
         try {
@@ -25,17 +24,12 @@ public class CreateUserService {
         }
     }
 
-    public static void main(String[] args) throws SQLException, ExecutionException, InterruptedException {
-        var createUserService = new CreateUserService();
-        try(var service = new KafkaService<>(CreateUserService.class.getSimpleName(),
-                "ECOMMERCE_NEW_ORDER",
-                createUserService::parse,
-                Map.of())){
-            service.run();
-        }
+    public static void main(String[] args) {
+        new ServiceRunner<>(CreateUserService::new).start(1);
     }
 
-    private void parse(ConsumerRecord<String, Message<Order>> record) throws SQLException {
+    @Override
+    public void parse(ConsumerRecord<String, Message<Order>> record) throws SQLException {
         var message = record.value();
         var payload = message.getPayload();
 
@@ -48,13 +42,23 @@ public class CreateUserService {
         }
     }
 
+    @Override
+    public String getTopic() {
+        return "ECOMMERCE_NEW_ORDER";
+    }
+
+    @Override
+    public String getConsumerGroup() {
+        return CreateUserService.class.getSimpleName();
+    }
+
     private void insertNewUser(String email) throws SQLException {
         var insert = connection.prepareStatement("insert into Users (uuid, email)" +
                 "values (?, ?)");
         insert.setString(1, UUID.randomUUID().toString());
         insert.setString(2, email);
         insert.execute();
-        System.out.println("User uuid " + email + " added!");
+        System.out.println("User " + email + " added!");
     }
 
     private boolean isNewUser(String email) throws SQLException {
