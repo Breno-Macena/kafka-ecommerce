@@ -8,6 +8,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="service-log" />
         <module name="service-http-ecommerce" />
+        <module name="service-email-new-order" />
         <module name="common-kafka" />
         <module name="service-new-order" />
         <module name="service-reading-report" />
@@ -16,8 +17,5 @@
         <module name="service-users" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="service-email-new-order" target="15" />
-    </bytecodeTargetLevel>
   </component>
 </project>
