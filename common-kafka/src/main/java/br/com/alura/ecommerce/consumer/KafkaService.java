@@ -72,6 +72,11 @@ public class KafkaService<T> implements Closeable {
         // definir o máximo de registros no poll como um, de forma que uma mensagem será processada por vez, e para
         // cada mensagem teremos um commit. Essa é uma configuração muito comum, e usada basteante inclusive em grandes empresas
         properties.setProperty(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "1");
+        // Pode acontecer do offset das mensagens ter sido "perdido". Isso ocorre, por exemplo, quando os dados são deletados.
+        // Nesse caso, podemos configurar o reset do offset para começar de onde for mais propício. Por padrão, começa do último
+        // offset, e isso pode culminar na perda de mensagens. Se começar do início, pode ocorrer de reprocessar uma mensagem
+        // que já foi processada, porém, não houve o commit
+        properties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         properties.putAll(overrideProperties);
 
         return properties;
