@@ -12,4 +12,8 @@ public class Order {
         this.email = email;
         this.amount = amount;
     }
+
+    public String getOrderId() {
+        return orderId;
+    }
 }

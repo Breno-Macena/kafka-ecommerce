@@ -14,8 +14,7 @@ public class LocalDatabase {
         try {
             connection.createStatement().execute(sql);
         }
-        catch (SQLException ex) {
-            ex.printStackTrace();
+        catch (SQLException ignored) {
         }
     }
 
@@ -34,5 +33,9 @@ public class LocalDatabase {
             preparedStatement.setString(i+1, params[i]);
         }
         return preparedStatement;
+    }
+
+    public void close() throws SQLException {
+        connection.close();
     }
 }

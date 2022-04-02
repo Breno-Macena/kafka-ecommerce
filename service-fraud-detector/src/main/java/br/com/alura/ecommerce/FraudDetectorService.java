@@ -57,7 +57,7 @@ public class FraudDetectorService implements ConsumerService<Order> {
                     order);
         }
         else {
-            database.update("insert into Orders (uuid, isFraud) values (?, false)", order.getOrderId());
+            database.update("insert into Orders (uuid, is_fraud) values (?, false)", order.getOrderId());
             System.out.println("Aproved: " + order);
             orderDispatcher.send("ECOMMERCE_ORDER_APPROVED", order.getEmail(),
                     message.getId().continueWith(FraudDetectorService.class.getSimpleName()),
@@ -74,7 +74,7 @@ public class FraudDetectorService implements ConsumerService<Order> {
 
     @Override
     public String getTopic() {
-        return "ECOMMERCE_ORDER_REJECTED";
+        return "ECOMMERCE_NEW_ORDER";
     }
 
     @Override
